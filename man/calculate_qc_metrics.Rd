@@ -4,12 +4,10 @@
 \alias{calculate_qc_metrics}
 \title{calculate_qc_metrics}
 \usage{
-calculate_qc_metrics(scobj, return_qc = FALSE)
+calculate_qc_metrics(scobj)
 }
 \arguments{
 \item{scobj}{a seurat object}
-
-\item{return_qc}{logical whether to return a tibble with QC metrics}
 }
 \value{
 a tibble
