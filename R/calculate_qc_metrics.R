@@ -20,7 +20,7 @@ calculate_qc_metrics <- function(scobj) {
     dplyr::mutate(
       qc_log10genesperumi = log10(n_gene) / log10(n_umi),
       qc_mtfraction = Seurat::PercentageFeatureSet(scobj, pattern = "^MT-")$nCount_RNA / 100,
-      qc_rbfraction = Seurat::PercentageFeatureSet(scobj, pattern = "^RB-")$nCount_RNA / 100)
+      qc_rbfraction = Seurat::PercentageFeatureSet(scobj, pattern = "^RP[SL]")$nCount_RNA / 100)
 
   metadata
 }
