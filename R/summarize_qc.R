@@ -5,6 +5,8 @@
 #'
 #' Will also count the number of cells failing QC thresholds.
 #'
+#' Pass a grouped tibble to calculate statistics by group.
+#'
 #' @param df a tibble or data frame with the following columns:
 #' n_gene, n_umi, qc_mtfraction, scrublet_call, qc_log10genesperumi
 #'
