@@ -21,7 +21,7 @@ genelists <- list(
       'CD68','CD83','CSF1R','FCER1G'),
 
   'ferraro2014_treg_tconv_up' = treg$`Treg up`,
-  'ferraro2014_treg_tconv_down' = na.omit(treg$`Treg down`)
+  'ferraro2014_treg_tconv_down' = treg$`Treg down`[complete.cases(treg$`Treg down`)]
 )
 
 map(genelists, length)

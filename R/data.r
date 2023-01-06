@@ -12,4 +12,4 @@
 #' A list containing 5 sets of genes
 #'
 #' @source Smillie 2019 methods, Ferarro 2014 supplemental
-genelists
+"genelists"
