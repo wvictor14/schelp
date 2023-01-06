@@ -1,0 +1,4 @@
+name: scRNAseq pipeline
+description: >
+   This template is for processing and analysis of scRNAseq data.
+create_dir: FALSE

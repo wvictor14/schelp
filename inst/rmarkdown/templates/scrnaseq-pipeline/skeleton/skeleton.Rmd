@@ -1,0 +1,374 @@
+---
+title: "scRNAseq pipeline"
+author: "Victor Yuan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    theme: flatly
+---
+
+
+# Libraries
+
+```{r}
+# read write data
+library(singleCellTK)
+library(here)
+library(scCustomize) # for Read10x_GEO
+library(readr)
+
+# data processing
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(purrr)
+library(forcats)
+library(glue)
+library(reticulate)
+library(schelp) # custom functions I wrote, install from wvictor14/schelp
+
+# data visualization
+library(ggplot2)
+library(kableExtra)
+library(scales)
+```
+
+# Read in data
+
+
+## read in counts from GEO
+
+Run if data supplied as features, barcodes, and matrix files for each sample
+
+these files can be gunzipped (end in .gz)
+
+see `scCustomize::Read10X_GEO` for details on input format
+
+```{r}
+# specify file path to data-containing directory
+path_to_data_dir <- here('data', 'GSE0000000_RAW')
+
+# read in samples
+GEO_single <- Read10X_GEO(data_dir = path_to_data_dir)
+
+# extract sample IDs
+GEO_sample_names <- names(GEO_single)
+
+# merge spare matrices
+GEO_merged <- 
+  Merge_Sparse_Data_All(
+    matrix_list = GEO_single,
+    
+    # use GSM IDs to prefix cell names
+    add_cell_ids = str_extract(GEO_sample_names, 'GSM[0-9]+'),
+    
+    cell_id_delimiter = '_')
+
+dim(GEO_merged) 
+
+scobj <- CreateSeuratObject(
+  GEO_merged, 
+  names.delim = '_',
+  names.field = 2 # capture the barcode
+)
+```
+
+## Samples metadata
+
+Collect metadata on samples from GEO, publication, and anywhere else.
+
+Combine them into metadata_samples
+
+Where each row is a 10x sample (not cells)
+
+```{r}
+# Supplmentary data from publication
+pub_sample_data <- read_csv('')
+
+# GEO data often supplies sample information
+# here is example:
+(metadata_sample <- tibble(filename = GEO_sample_names) %>%
+    mutate(GSM = str_extract(filename, 'GSM[0-9]+'),
+           patient = str_extract(filename,"(?<=_)([0-9]{3})(?=_$)")) %>%
+    left_join(t1) %>%
+    select(-filename)
+) 
+```
+
+## Cells metadata
+
+Sometimes cell metadata is also supplied. Can load and clean up here. Otherwise,
+we will create this from QC step.
+
+# QC
+
+## qc thresholds
+
+Set QC thresholds here:
+
+```{r}
+ngene_th <- 250
+numi_th <- 500
+mtr_th <- 0.2
+```
+
+Keep cells: 
+
+- nGene > `r ngene_th`
+- nUMI > `r numi_th`
+- mtRatio < `r mtr_th`
+
+## extract QC data
+
+extract qc data from seurat object:
+
+ngene, numi, mtRatio, rbRatio, complexity
+
+```{r}
+metadata_cells <- schelp::calculate_qc_metrics(scobj)
+
+# add patient data to cells metadata
+metadata_cells <- metadata_cells %>%
+  mutate(GSM = str_extract(cellid, 'GSM[0-9]+')) %>%
+  left_join(metadata_sample, by = 'GSM') 
+```
+
+Now visualize qc by sample. Replace `patient` with whatever variable you want to
+visualize by.
+
+```{r qc-metrics-by-sample}
+metadata_cells %>%
+  pivot_longer(cols = c(contains('n_'), contains('qc')),
+               names_to = 'qc',
+               values_to = 'value') %>%
+  
+  ggplot(aes(x = patient,  y = value)) +
+  geom_boxplot() +
+  theme_bw() +
+  facet_wrap(vars(qc), nrow = 1, scales = 'free') 
+```
+
+## Doublet calling
+
+Here we run scrublet. Importantly do this independently by 10x run.
+
+We rely on singlecellTK package to run scrublet, which uses reticulate to access
+the python based implementation of scrublet.
+
+Takes ~50 seconds per 10,000 cells.
+
+Replace `patient` with 10x run identifier (e.g. sample)
+
+```{r scrublet, eval = TRUE}
+# 1. filter scobj based on QC thresholds
+scobj@meta.data <- metadata_cells %>%
+  data.frame(row.names = 'cellid')
+
+keep <- metadata_cells %>%
+  filter(n_gene > ngene_th, n_umi > numi_th, qc_mtfraction < mtr_th) %>%
+  pull(cellid)
+
+scobj_filtered <- scobj[,keep]
+dim(scobj_filtered) 
+sce <- as.SingleCellExperiment(scobj_filtered)
+
+# activate conda env, make sure dependencies are installed
+reticulate::use_condaenv('r-reticulate')
+
+# run scrublet
+a <- Sys.time()
+scrub <- singleCellTK::runScrublet(
+  sce,
+  sample = sce$patient, #
+  seed = 1234)
+b <- Sys.time()
+print(b-a)
+
+# clean up results
+scrub_results <- scrub@colData %>% 
+  as_tibble(rownames = 'cellid') %>% 
+  select(cellid, contains('scrub'))
+
+# add back to metadata_cells df
+metadata_cells <- metadata_cells %>%
+  left_join(scrub_results)
+
+# remove objects
+rm(keep, scobj_filtered, sce, scrub, scrub_results)
+```
+
+Analyse doublet results
+
+Verify that doublets have higher UMI than singlets
+
+```{r analyze-doublets}
+# recode scrublet calls
+metadata_cells <- metadata_cells %>%
+  mutate(scrublet_call = case_when(
+    scrublet_call ~ 'Doublet',
+    !scrublet_call ~ 'Singlet',
+    is.na(scrublet_call) ~ 'Not evaluated'))
+
+# count # doublets
+metadata_cells %>%
+  count(scrublet_call)
+
+# nUMI by scrublet call
+metadata_cells %>%
+  filter(scrublet_call != 'Not evaluated') %>%
+  ggplot(aes(x = scrublet_call, y = n_umi)) +
+  geom_violin() +
+  theme_sonoma
+
+# p by patient
+metadata_cells %>%
+  filter(scrublet_call != 'Not evaluated') %>%
+  count(patient, scrublet_call) %>%
+  group_by(patient) %>%
+  mutate(p = n/sum(n)) %>%
+  ggplot(aes(x = patient, y = p, fill = scrublet_call)) +
+  geom_bar(stat = 'identity') +
+  theme_sonoma
+
+glue::glue("{sum(metadata_cells$scrublet_call == 'Doublet')} doublets")
+glue::glue("{sum(metadata_cells$scrublet_call == 'Singlet')} singlets")
+```
+
+## Summarize QC by group
+
+For this example, we calculate QC by a single group, patient. But can include 
+additional variables of interest that we want to see QC across.
+
+```{r, results = 'asis'}
+# stats overall
+metadata_cells %>% schelp::summarize_qc() %>%
+  kable() %>% kable_styling()
+
+# by patient
+qc <- metadata_cells %>% group_by(patient) %>%
+  schelp::summarize_qc() %>% ungroup() %>%  
+  arrange(disease, ncell_after_qc_filter)  
+qc %>% kable() %>% kable_styling()
+```
+
+`r nrow(metadata_cells)` cells detected
+
+- Removed 84178 (88.86%) cells from 
+- 3102 (3.27%) cells with Number genes < 250 
+- 0 cells with # UMI < 500
+- 84088 (88.77%) cells with mt- fraction > 0.20
+- 60 (0.57%) cells called doublets by scrublet*
+
+Leaving 10550 (11.14%) cells for analysis, 758 – 2384 cells per sample
+
+
+visualize filtering
+
+```{r}
+qc %>%
+  select(patient, disease, sex, age, contains('ncell_')) %>%
+  pivot_longer(cols = contains('ncell_'),
+               names_to = 'metric',
+               names_prefix = 'ncell_',
+               values_to = 'n') %>%
+  group_by(patient) %>%
+  mutate(p = n/sum(n),
+         patient_ncell = glue::glue("{patient} ({sum(n)})")) %>%
+  
+  
+  ggplot(aes(x = p, y = patient_ncell, fill = metric)) +
+  geom_bar(stat = 'identity') +
+  theme_sonoma +
+  theme(aspect.ratio = NULL,
+        axis.title.y = element_text(angle = 0, vjust = 0.5)) +
+  labs(fill = '', y = 'Patient (total # cell)', x = '% of total # cells') +
+  scale_x_continuous(labels = scales::percent, expand = expansion(0,0))
+```
+
+14764
+
+## Apply filtering
+
+```{r}
+# 1. filter scobj based on QC thresholds and scrublet
+scobj@meta.data <- metadata_cells %>%
+  data.frame(row.names = 'cellid')
+
+keep <- metadata_cells %>%
+  filter(n_gene > ngene_th, n_umi > numi_th, qc_mtfraction < mtr_th,
+         scrublet_call != 'Doublet') %>%
+  pull(cellid)
+
+scobj_filtered <- scobj[,keep]
+dim(scobj_filtered) # 36601 10550
+```
+
+# Clustering
+
+## Integrate data
+
+```{r}
+# split by patient
+scobj_list <- SplitObject(scobj, split.by = "patient")
+
+# normalize and identify variable features for each dataset independently
+scobj_list <- lapply(X = scobj_list, FUN = function(x) {
+    x <- NormalizeData(x)
+    x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
+})
+
+# select features that are repeatedly variable across datasets for integration
+features <- SelectIntegrationFeatures(object.list = scobj_list)
+```
+
+## PCA + UMAP
+
+```{r}
+# tp10k
+scobj_norm <- NormalizeData(
+  scobj, scale.factor = 10000, normalization.method = "LogNormalize")
+
+counts_lntp10k <- GetAssayData(scobj_norm, slot = 'data')
+
+scobj_norm <- FindVariableFeatures(scobj_norm, selection.method = "vst", nfeatures = 2000)
+
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(scobj_norm), 10)
+
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(scobj_norm)
+LabelPoints(plot = plot1, points = top10, repel = TRUE)
+
+# scale the data
+scobj_norm <- ScaleData(scobj_norm, features = rownames(scobj_norm))
+scobj_norm <- RunPCA(scobj_norm, features = VariableFeatures(object = scobj_norm))
+```
+
+```{r}
+# examine PCs
+print(scobj_norm[["pca"]], dims = 1:5, nfeatures = 5)
+
+VizDimLoadings(scobj_norm, dims = 1:2, reduction = "pca")
+DimPlot(scobj_norm, reduction = "pca")
+DimHeatmap(scobj_norm, dims = 1:10, cells = 500, balanced = TRUE)
+
+# select # PCs
+ElbowPlot(scobj_norm)
+```
+
+Let's say 11, because that's what Kanke2022 did
+
+## Clustering
+
+```{r}
+scobj_norm <- FindNeighbors(scobj_norm, dims = 1:11)
+scobj_norm <- FindClusters(scobj_norm, resolution = 0.7)
+```
+
+## Cell annotation
+
+```{r}
+
+```
+
