@@ -5,7 +5,6 @@
 #' @return a tibble
 #' @export
 #'
-#' @examples
 calculate_qc_metrics <- function(scobj) {
   metadata <- scobj@meta.data %>% tibble::as_tibble(rownames = "cellid")
 

@@ -35,7 +35,21 @@ devtools::install_github("wvictor14/schelp")
 
 This is a basic example which shows you how to solve a common problem:
 
-```{r example}
+```{r example, eval = FALSE}
 library(schelp)
 ## basic example code
 ```
+
+## development
+
+metadata_cells and counts_lntp10k.rds exists in data/ for development testing
+
+too large to carry with package
+
+todo: separate into smaller test data
+
+```{r, eval = FALSE}
+counts <- readRDS(here::here('data', 'counts_lntp10k.rds'))
+metadata <- readRDS(here::here('data', 'metadata_cells.rds'))
+```
+

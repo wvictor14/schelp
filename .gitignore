@@ -6,3 +6,5 @@
 .httr-oauth
 .DS_Store
 Ferraro2014_genelist.csv
+counts_lntp10k.rds
+metadata_cells.rds

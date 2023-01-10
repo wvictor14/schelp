@@ -20,7 +20,6 @@
 #' @return a tibble containing summarized qc info
 #' @export
 #'
-#' @examples
 summarize_qc <- function(df, ngene_th = 250, numi_th = 500, mtr_th = 0.2) {
 
   # stat functions

@@ -9,7 +9,7 @@ library(purrr)
 treg <- read_csv(here::here('data-raw', 'Ferraro2014_genelist.csv'))
 genelists <- list(
 
-  # From Smillie 2019
+  # Compartment genes From Smillie 2019
   'smillie2019_epithelial' = c('EPCAM', 'KRT8','KRT18'),
 
   'smillie2019_stromal' =
@@ -21,7 +21,25 @@ genelists <- list(
       'CD68','CD83','CSF1R','FCER1G'),
 
   'ferraro2014_treg_tconv_up' = treg$`Treg up`,
-  'ferraro2014_treg_tconv_down' = treg$`Treg down`[complete.cases(treg$`Treg down`)]
+  'ferraro2014_treg_tconv_down' = treg$`Treg down`[complete.cases(treg$`Treg down`)],
+
+  # From Kanke 2022 and Smillie 2019
+  'colon_stem' <- c("LGR5"),
+  'colon_goblet' <- c("MUC2"),
+  'colon_ta_cycling' <- c('CENPA'), #referred to as g2-m-g1
+  'colon_ta_s' <- c('PCNA'),
+  'colon_enteroendocrine' <- c("CHGA"),
+  'colon_colonocytes' <- c('CA1', 'CAECAM7'),
+  'colon_enterocytes_BEST4' <- c('BEST4', 'OTOP2', 'SPIB', 'CA7'),
+
+  'cryptaxis_top' <- c('SELENOP'),
+
+  # Immune cells kanke 2022 + Smillie + others
+  'immune_tcells_tregs' <- c('FOXP3', 'HELIOS', 'IL2RA'),
+  'immune_bcells' <- c('CD27', 'CD79A', 'IGHM'),
+  'immune_bcells_memory' <- c('MS4A1', 'CD19'),
+  'immune_bcells_plasma' <- c('SLAMF7', 'IGHG1'),
+
 )
 
 map(genelists, length)
