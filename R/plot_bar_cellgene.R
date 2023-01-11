@@ -7,7 +7,16 @@
 #' @param metadata cells metadata
 #' @param genes character vector of gene names
 #' @param celltype column of metadata that denotes cell identity
+#' @param type one of "mean_se", "bar_mean", "bar_mean_se", "bar_median",
+#' "violin", "boxplot"
 #' @param zscore Whether expression should be zscore or not
+#' @param add_jitter adds jittered points default = FALSE,
+#' @param jitterheight multiplier that controls jitter height. Default = 0.75
+#' @param alpha controls the alpha of jittered points = 0.5
+#' @param pointsize = 1,
+#' @param ncol for facetwrap
+#' @param nrow
+#' @param fontsize_p Multiplier that controls relative fontsize. Default is 1
 #'
 #' @return ggplot2
 #' @export
@@ -16,11 +25,12 @@ plot_bar_cellgene <- function(metadata, genes, celltype,
                               type = 'boxplot',
                               zscore = FALSE,
                               add_jitter = FALSE,
-                              jitterheight = 0.1,
-                              alpha = 1,
+                              jitterheight = 0.75,
+                              alpha = 0.5,
                               pointsize = 1,
                               ncol = NULL,
-                              nrow = NULL){
+                              nrow = NULL,
+                              fontsize_p = 1){
 
 
   label <- 'ln(TP10K)'
@@ -65,7 +75,7 @@ plot_bar_cellgene <- function(metadata, genes, celltype,
 
   # start plot
   plot <- ggplot(metadata, aes(y = celltype_pexpr, x = expression)) +
-    facet_wrap(vars(gene), nrow = 1, scale = 'free')
+    facet_wrap(vars(gene), nrow = nrow, ncol = ncol, scale = 'free')
 
   # select geom and summary function
   if (type == 'mean_se') {
@@ -98,18 +108,24 @@ plot_bar_cellgene <- function(metadata, genes, celltype,
   }
   if (type == 'boxplot') {
     plot <- plot +
-      geom_boxplot()
+      geom_boxplot(outlier.shape = ifelse(add_jitter, NA, 19))
   }
 
   if (add_jitter) {
-    plot <- plot +
-      geom_jitter(alpha = alpha, size = pointsize, height = jitterheight)
+
+    if (type == 'violin') {
+      plot <- plot +
+        ggforce::geom_sina(alpha = alpha, size = pointsize, adjust = 1*jitterheight)
+    } else {
+      plot <- plot +
+        geom_jitter(alpha = alpha, size = pointsize, height = 0.2*jitterheight)
+    }
   }
 
   plot <- plot +
     # add theme customization
     theme(strip.placement = 'outside') +
-    theme_bw() +
+    theme_bw(base_size = 10*fontsize_p) +
     theme(panel.grid.major.y = element_blank(),
           panel.grid.minor.y = element_blank(),
           axis.line = element_line(),
