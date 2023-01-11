@@ -9,7 +9,10 @@ plot_umap_dim(
   genes,
   UMAP1 = "UMAP_1",
   UMAP2 = "UMAP_2",
-  zscore = TRUE
+  zscore = TRUE,
+  pointsize = 1,
+  alpha = 1,
+  breaks = 4
 )
 }
 \arguments{

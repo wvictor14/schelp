@@ -18,7 +18,10 @@
 #' @export
 #' @import ggplot2
 plot_umap_dim <- function(metadata, genes,
-                          UMAP1 = 'UMAP_1', UMAP2 = 'UMAP_2', zscore = TRUE){
+                          UMAP1 = 'UMAP_1', UMAP2 = 'UMAP_2', zscore = TRUE,
+                          pointsize = 1,
+                          alpha = 1,
+                          breaks = 4){
 
   label <- 'ln(TP10K)'
 
@@ -35,7 +38,7 @@ plot_umap_dim <- function(metadata, genes,
       dplyr::group_by(gene)  %>%
       dplyr::mutate(expression_zscore = (expression - mean(expression)) / sd(expression))
 
-    label <- glue::glue('{label}\nZ score')
+    label <- glue::glue('Z score')
   }
 
 
@@ -47,7 +50,8 @@ plot_umap_dim <- function(metadata, genes,
       .f = ~.x %>% {
         ggplot(.x, aes(x = .data[[UMAP1]], y = .data[[UMAP2]],
                        color = expression)) +
-          scattermore::geom_scattermore(pointsize = 0.5) +
+          scattermore::geom_scattermore(pointsize = pointsize,
+                                        alpha = alpha) +
           theme(strip.placement = 'outside') +
           theme_bw() +
           theme(panel.border = element_blank(),
@@ -72,7 +76,11 @@ plot_umap_dim <- function(metadata, genes,
                      max(.x$expression)
               )
             ),
-            oob = scales::squish
+            breaks = scales::breaks_extended(n=breaks),
+
+            oob = scales::squish,
+            guide = guide_colorbar(barwidth = 0.5, barheight = 2.5,
+                                   ticks.colour = 'black')
           ) +
           labs(color = label, title = .y,
                x = UMAP1, y = UMAP2)
