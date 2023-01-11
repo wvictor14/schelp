@@ -3,6 +3,7 @@
 export("%>%")
 export(calculate_qc_metrics)
 export(extract_gene)
+export(plot_bar_cellgene)
 export(plot_umap_expr)
 export(summarize_qc)
 import(ggplot2)
