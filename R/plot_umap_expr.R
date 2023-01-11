@@ -29,20 +29,19 @@ plot_umap_expr <- function(metadata, genes,
 
   metadata <- metadata %>%
     dplyr::select(cellid, .data[[UMAP1]], .data[[UMAP2]],
-                  tidyselect::any_of(genes))
+                  tidyselect::any_of(genes)) %>%
+    tidyr::pivot_longer(cols = tidyselect::any_of(genes),
+                        names_to = 'gene',
+                        values_to = 'expression')
 
   # calculate z score
   if (zscore) {
     metadata <- metadata %>%
-      tidyr::pivot_longer(cols = tidyselect::any_of(genes),
-                          names_to = 'gene',
-                          values_to = 'expression') %>%
       dplyr::group_by(gene)  %>%
       dplyr::mutate(expression_zscore = (expression - mean(expression)) / sd(expression))
 
     label <- glue::glue('Z score')
   }
-
 
   plots <- metadata  %>%
 
@@ -110,7 +109,7 @@ extract_gene <- function(metadata, expr, genes) {
                                     ", ")
     ))
 
-    metadata %>%
+    metadata <- metadata %>%
       dplyr::select(-tidyselect::any_of(genes))
   }
 
