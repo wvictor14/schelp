@@ -17,11 +17,13 @@
 #' @return ggplot2
 #' @export
 #' @import ggplot2
-plot_umap_dim <- function(metadata, genes,
+plot_umap_expr <- function(metadata, genes,
                           UMAP1 = 'UMAP_1', UMAP2 = 'UMAP_2', zscore = TRUE,
                           pointsize = 1,
                           alpha = 1,
-                          breaks = 4){
+                          breaks = 4,
+                          ncol = NULL,
+                          nrow = NULL){
 
   label <- 'ln(TP10K)'
 
@@ -86,7 +88,7 @@ plot_umap_dim <- function(metadata, genes,
                x = UMAP1, y = UMAP2)
       }
     )
-  patchwork::wrap_plots(plots)
+  patchwork::wrap_plots(plots, ncol = ncol, nrow = nrow)
 }
 
 #' extracts gene expression data into metadata
