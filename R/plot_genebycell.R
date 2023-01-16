@@ -17,24 +17,28 @@
 #' @param jitterheight multiplier that controls jitter height. Default = 0.75
 #' @param alpha controls the alpha of jittered points = 0.5
 #' @param pointsize = 1,
+#' @param expand_mult expand_mult and *_add increases limit of x axis to make
+#' space for text labels. Default mult is 0
+#' @param expand_add default is 0.45
 #' @param fontsize_p Multiplier that controls relative fontsize. Default is 1
 #' @param pexpr_label_size controls size of percent expression labels. Default
-#' is 2.5
+#' is 2.25
 #'
 #' @return ggplot2
 #' @export
 #' @import ggplot2
 plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
-                              celltype_col,
-                              type = 'boxplot',
-                              zscore = FALSE,
-                              add_jitter = FALSE,
-                              jitterheight = 0.75,
-                              alpha = 0.5,
-                              pointsize = 1,
-                              ncol = NULL,
-                              nrow = NULL,
-                              fontsize_p = 1){
+                            celltype_col,
+                            type = 'boxplot',
+                            zscore = FALSE,
+                            add_jitter = FALSE,
+                            jitterheight = 0.75,
+                            alpha = 0.5,
+                            pointsize = 1,
+                            expand_mult = 0,
+                            expand_add = 0.45,
+                            fontsize_p = 1,
+                            pexpr_label_size = 2.25){
   label <- 'ln(TP10K)'
 
   # extract gene expr
@@ -57,16 +61,16 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
     dplyr::mutate(
       p_expr_highlight = ifelse(p_expr > 0, 'black', 'grey'),
       p_expr = p_expr %>% scales::percent(accuracy = 0.1) %>%
-                    stringr::str_pad(width = 5)) %>%
+        stringr::str_pad(width = 5)) %>%
     dplyr::ungroup() %>%
 
     dplyr::arrange({{celltype_col}}) %>%
     dplyr::mutate(# refactor
-                  celltype_pexpr = paste0(
-                    {{celltype_col}} %>% stringr::str_pad(width = 2),
-                    glue::glue("({p_expr})") %>% stringr::str_pad(width = 8)
-                  ) %>%
-                    forcats::fct_inorder()
+      celltype_pexpr = paste0(
+        {{celltype_col}} %>% stringr::str_pad(width = 2),
+        glue::glue("({p_expr})") %>% stringr::str_pad(width = 8)
+      ) %>%
+        forcats::fct_inorder()
     ) %>%
     dplyr::left_join(metadata,
                      .,
@@ -85,7 +89,7 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
   plot <- ggplot(metadata, aes(y = {{celltype_col}}, x = expression, color = p_expr_highlight)) +
     facet_grid(cols = vars(gene), scales = 'free') +
     geom_text(aes(label = p_expr),
-              x = -0.25, size = 2.5, family = 'mono') +
+              x = -0.25, size = pexpr_label_size, family = 'mono') +
     scale_color_identity()
 
 
@@ -136,7 +140,7 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
 
   plot <- plot +
     # add theme customization
-    scale_x_continuous(expand = expansion(add = 0.5)) +
+    scale_x_continuous(expand = expansion(mult=expand_mult, add=expand_add)) +
     theme_bw(base_size = 10*fontsize_p) +
     theme(panel.grid.major.y = element_blank(),
           panel.grid.minor.y = element_blank(),

@@ -16,9 +16,10 @@ plot_genebycell(
   jitterheight = 0.75,
   alpha = 0.5,
   pointsize = 1,
-  ncol = NULL,
-  nrow = NULL,
-  fontsize_p = 1
+  expand_mult = 0,
+  expand_add = 0.45,
+  fontsize_p = 1,
+  pexpr_label_size = 2.25
 )
 }
 \arguments{
@@ -46,10 +47,15 @@ match rownames(counts). Default is "cellid"}
 
 \item{pointsize}{= 1,}
 
+\item{expand_mult}{expand_mult and *_add increases limit of x axis to make
+space for text labels. Default mult is 0}
+
+\item{expand_add}{default is 0.45}
+
 \item{fontsize_p}{Multiplier that controls relative fontsize. Default is 1}
 
 \item{pexpr_label_size}{controls size of percent expression labels. Default
-is 2.5}
+is 2.25}
 }
 \value{
 ggplot2
