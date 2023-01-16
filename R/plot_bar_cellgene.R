@@ -15,7 +15,7 @@
 #' @param alpha controls the alpha of jittered points = 0.5
 #' @param pointsize = 1,
 #' @param ncol for facetwrap
-#' @param nrow
+#' @param nrow for facetwrap
 #' @param fontsize_p Multiplier that controls relative fontsize. Default is 1
 #'
 #' @return ggplot2
@@ -31,7 +31,6 @@ plot_bar_cellgene <- function(metadata, genes, celltype,
                               ncol = NULL,
                               nrow = NULL,
                               fontsize_p = 1){
-
 
   label <- 'ln(TP10K)'
 
@@ -49,10 +48,10 @@ plot_bar_cellgene <- function(metadata, genes, celltype,
   metadata <- metadata %>%
     dplyr::group_by( gene, {{celltype}}) %>%
     dplyr::summarize(p_expr = sum(expression > 0) / dplyr::n()) %>%
-    ungroup() %>%
+    dplyr::ungroup() %>%
 
-    arrange({{celltype}}) %>%
-    mutate(p_expr = p_expr %>% scales::percent(accuracy = 0.1),
+    dplyr::arrange({{celltype}}) %>%
+    dplyr::mutate(p_expr = p_expr %>% scales::percent(accuracy = 0.1),
            # refactor
            celltype_pexpr = paste0(
              {{celltype}} %>% stringr::str_pad(width = 2),
@@ -75,7 +74,7 @@ plot_bar_cellgene <- function(metadata, genes, celltype,
 
   # start plot
   plot <- ggplot(metadata, aes(y = celltype_pexpr, x = expression)) +
-    facet_wrap(vars(gene), nrow = nrow, ncol = ncol, scale = 'free')
+    facet_wrap(vars(gene), nrow = nrow, ncol = ncol, scales = 'free')
 
   # select geom and summary function
   if (type == 'mean_se') {
