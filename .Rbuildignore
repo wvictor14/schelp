@@ -6,5 +6,5 @@
 ^\.github$
 ^data-raw$
 ^Ferraro2014_genelist\.csv$
-^counts_lntp10k\.rds$
-^metadata_cells\.rds$
+^data/counts_lntp10k\.rds$
+^data/metadata_cells\.rds$
