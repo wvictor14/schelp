@@ -10,8 +10,11 @@
 #' data.
 #'
 #'
-#' @param metadata cells metadata
+#' @param metadata cell metadata
+#' @param cellid_col column in metadata containing cell identifiers, should
+#' match rownames(counts). Default is "cellid"
 #' @param genes character vector of gene names
+#' @param expr count matrix, cells in columns, genes in rows
 #' @param zscore Whether expression should be zscore or not
 #' @param pointsize non-integers work best
 #' @param pixels resolution for ggscattermore
@@ -19,7 +22,7 @@
 #' @return ggplot2
 #' @export
 #' @import ggplot2
-plot_umap_expr <- function(metadata, genes,
+plot_umap_expr <- function(metadata, cellid_col = 'cellid', expr, genes,
                           UMAP1 = 'UMAP_1', UMAP2 = 'UMAP_2', zscore = TRUE,
                           pointsize = 1.2,
                           pixels = 712,
@@ -30,6 +33,11 @@ plot_umap_expr <- function(metadata, genes,
 
   label <- 'ln(TP10K)'
 
+  # extract gene expr
+  metadata <- extract_gene(
+    metadata = metadata, expr = expr, cellid_col = cellid_col, genes = genes)
+
+  # tidy format
   metadata <- metadata %>%
     dplyr::select(cellid, .data[[UMAP1]], .data[[UMAP2]],
                   tidyselect::any_of(genes)) %>%

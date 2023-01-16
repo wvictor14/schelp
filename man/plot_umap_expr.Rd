@@ -6,6 +6,8 @@
 \usage{
 plot_umap_expr(
   metadata,
+  cellid_col = "cellid",
+  expr,
   genes,
   UMAP1 = "UMAP_1",
   UMAP2 = "UMAP_2",
@@ -19,7 +21,12 @@ plot_umap_expr(
 )
 }
 \arguments{
-\item{metadata}{cells metadata}
+\item{metadata}{cell metadata}
+
+\item{cellid_col}{column in metadata containing cell identifiers, should
+match rownames(counts). Default is "cellid"}
+
+\item{expr}{count matrix, cells in columns, genes in rows}
 
 \item{genes}{character vector of gene names}
 
