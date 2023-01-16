@@ -1,9 +1,10 @@
 Package: schelp
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Data processing and analysis tools for scRNAseq data
+Version: 0.0.1
 Authors@R: 
     person("Victor", "Yuan", , "victor.2wy@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: A collection of helper functions that I use for my scRNAseq 
+data processing and analysis pipelines.
 License: MIT + file LICENSE
 Suggests: 
     testthat (>= 3.0.0)
