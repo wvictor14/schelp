@@ -11,11 +11,12 @@ plot_bar_cellgene(
   type = "boxplot",
   zscore = FALSE,
   add_jitter = FALSE,
-  jitterheight = 0.1,
-  alpha = 1,
+  jitterheight = 0.75,
+  alpha = 0.5,
   pointsize = 1,
   ncol = NULL,
-  nrow = NULL
+  nrow = NULL,
+  fontsize_p = 1
 )
 }
 \arguments{
@@ -25,7 +26,22 @@ plot_bar_cellgene(
 
 \item{celltype}{column of metadata that denotes cell identity}
 
+\item{type}{one of "mean_se", "bar_mean", "bar_mean_se", "bar_median",
+"violin", "boxplot"}
+
 \item{zscore}{Whether expression should be zscore or not}
+
+\item{add_jitter}{adds jittered points default = FALSE,}
+
+\item{jitterheight}{multiplier that controls jitter height. Default = 0.75}
+
+\item{alpha}{controls the alpha of jittered points = 0.5}
+
+\item{pointsize}{= 1,}
+
+\item{ncol}{for facetwrap}
+
+\item{fontsize_p}{Multiplier that controls relative fontsize. Default is 1}
 }
 \value{
 ggplot2
