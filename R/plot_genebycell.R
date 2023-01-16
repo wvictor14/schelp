@@ -92,7 +92,8 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
   plot <- ggplot(metadata, aes(y = {{celltype_col}}, x = expression, color = p_expr_highlight)) +
     facet_grid(cols = vars(gene), scales = 'free') +
     geom_text(aes(label = p_expr),
-              x = -0.25, size = pexpr_label_size, family = 'mono') +
+              x = -expand_add, #label position is a function of mult_add
+              size = pexpr_label_size, family = 'mono') +
     scale_color_identity()
 
 
