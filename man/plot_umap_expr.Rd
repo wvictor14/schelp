@@ -10,7 +10,8 @@ plot_umap_expr(
   UMAP1 = "UMAP_1",
   UMAP2 = "UMAP_2",
   zscore = TRUE,
-  pointsize = 1,
+  pointsize = 1.2,
+  pixels = 712,
   alpha = 1,
   breaks = 4,
   ncol = NULL,
@@ -23,6 +24,10 @@ plot_umap_expr(
 \item{genes}{character vector of gene names}
 
 \item{zscore}{Whether expression should be zscore or not}
+
+\item{pointsize}{non-integers work best}
+
+\item{pixels}{resolution for ggscattermore}
 }
 \value{
 ggplot2

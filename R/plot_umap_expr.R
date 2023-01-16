@@ -13,13 +13,16 @@
 #' @param metadata cells metadata
 #' @param genes character vector of gene names
 #' @param zscore Whether expression should be zscore or not
+#' @param pointsize non-integers work best
+#' @param pixels resolution for ggscattermore
 #'
 #' @return ggplot2
 #' @export
 #' @import ggplot2
 plot_umap_expr <- function(metadata, genes,
                           UMAP1 = 'UMAP_1', UMAP2 = 'UMAP_2', zscore = TRUE,
-                          pointsize = 1,
+                          pointsize = 1.2,
+                          pixels = 712,
                           alpha = 1,
                           breaks = 4,
                           ncol = NULL,
@@ -52,6 +55,7 @@ plot_umap_expr <- function(metadata, genes,
         ggplot(.x, aes(x = .data[[UMAP1]], y = .data[[UMAP2]],
                        color = expression)) +
           scattermore::geom_scattermore(pointsize = pointsize,
+                                        pixels = c(pixels, pixels),
                                         alpha = alpha) +
           theme(strip.placement = 'outside') +
           theme_bw() +
