@@ -41,6 +41,8 @@ plot_bar_cellgene(
 
 \item{ncol}{for facetwrap}
 
+\item{nrow}{for facetwrap}
+
 \item{fontsize_p}{Multiplier that controls relative fontsize. Default is 1}
 }
 \value{
