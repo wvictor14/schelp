@@ -6,6 +6,8 @@
 \usage{
 plot_bar_cellgene(
   metadata,
+  cellid_col = "cellid",
+  expr,
   genes,
   celltype,
   type = "boxplot",
@@ -20,11 +22,14 @@ plot_bar_cellgene(
 )
 }
 \arguments{
-\item{metadata}{cells metadata}
+\item{metadata}{cell metadata}
+
+\item{cellid_col}{column in metadata containing cell identifiers, should
+match rownames(counts). Default is "cellid"}
+
+\item{expr}{count matrix, cells in columns, genes in rows}
 
 \item{genes}{character vector of gene names}
-
-\item{celltype}{column of metadata that denotes cell identity}
 
 \item{type}{one of "mean_se", "bar_mean", "bar_mean_se", "bar_median",
 "violin", "boxplot"}

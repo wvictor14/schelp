@@ -4,9 +4,12 @@
 #'
 #'
 #'
-#' @param metadata cells metadata
+#' @param metadata cell metadata
+#' @param cellid_col column in metadata containing cell identifiers, should
+#' match rownames(counts). Default is "cellid"
 #' @param genes character vector of gene names
-#' @param celltype column of metadata that denotes cell identity
+#' @param expr count matrix, cells in columns, genes in rows
+#'
 #' @param type one of "mean_se", "bar_mean", "bar_mean_se", "bar_median",
 #' "violin", "boxplot"
 #' @param zscore Whether expression should be zscore or not
@@ -21,7 +24,8 @@
 #' @return ggplot2
 #' @export
 #' @import ggplot2
-plot_bar_cellgene <- function(metadata, genes, celltype,
+plot_bar_cellgene <- function(metadata, cellid_col = 'cellid', expr, genes,
+                              celltype,
                               type = 'boxplot',
                               zscore = FALSE,
                               add_jitter = FALSE,
@@ -31,14 +35,16 @@ plot_bar_cellgene <- function(metadata, genes, celltype,
                               ncol = NULL,
                               nrow = NULL,
                               fontsize_p = 1){
-
   label <- 'ln(TP10K)'
 
+  # extract gene expr
+  metadata <- extract_gene(
+    metadata = metadata, expr = expr, cellid_col = cellid_col, genes = genes)
+
+  # reshape to tidy format
   metadata <- metadata %>%
     dplyr::select(cellid, {{celltype}},
                   tidyselect::any_of(genes)) %>%
-
-    # reshape to tidy format
     tidyr::pivot_longer(cols = tidyselect::any_of(genes),
                         names_to = 'gene',
                         values_to = 'expression')
