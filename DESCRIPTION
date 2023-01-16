@@ -14,12 +14,14 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
     dplyr,
+    forcats,
     ggforce,
     ggplot2,
     glue,
     magrittr,
     patchwork,
     purrr,
+    rlang,
     scales,
     scattermore,
     scibd,
