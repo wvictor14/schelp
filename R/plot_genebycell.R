@@ -21,6 +21,8 @@
 #' space for text labels. Default mult is 0
 #' @param expand_add default is 0.45
 #' @param fontsize_p Multiplier that controls relative fontsize. Default is 1
+#' @param p_expr_highlight_thresh clusters over/under this proportion (0-1) are
+#' highlighted
 #' @param pexpr_label_size controls size of percent expression labels. Default
 #' is 2.25
 #'
@@ -38,6 +40,7 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
                             expand_mult = 0,
                             expand_add = 0.45,
                             fontsize_p = 1,
+                            p_expr_highlight_thresh = 0.05,
                             pexpr_label_size = 2.25){
   label <- 'ln(TP10K)'
 
@@ -59,7 +62,7 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
     dplyr::group_by( gene, {{celltype_col}}) %>%
     dplyr::summarize(p_expr = sum(expression > 0) / dplyr::n()) %>%
     dplyr::mutate(
-      p_expr_highlight = ifelse(p_expr > 0, 'black', 'grey'),
+      p_expr_highlight = ifelse(p_expr > p_expr_highlight_thresh, 'black', 'grey'),
       p_expr = p_expr %>% scales::percent(accuracy = 0.1) %>%
         stringr::str_pad(width = 5)) %>%
     dplyr::ungroup() %>%

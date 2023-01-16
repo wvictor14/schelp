@@ -19,6 +19,7 @@ plot_genebycell(
   expand_mult = 0,
   expand_add = 0.45,
   fontsize_p = 1,
+  p_expr_highlight_thresh = 0.05,
   pexpr_label_size = 2.25
 )
 }
@@ -53,6 +54,9 @@ space for text labels. Default mult is 0}
 \item{expand_add}{default is 0.45}
 
 \item{fontsize_p}{Multiplier that controls relative fontsize. Default is 1}
+
+\item{p_expr_highlight_thresh}{clusters over/under this proportion (0-1) are
+highlighted}
 
 \item{pexpr_label_size}{controls size of percent expression labels. Default
 is 2.25}
