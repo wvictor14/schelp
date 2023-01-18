@@ -11,7 +11,7 @@ plot_umap_expr(
   genes,
   UMAP1 = "UMAP_1",
   UMAP2 = "UMAP_2",
-  zscore = TRUE,
+  zscore = FALSE,
   pointsize = 1.2,
   pixels = 712,
   alpha = 1,
@@ -30,11 +30,23 @@ match rownames(counts). Default is "cellid"}
 
 \item{genes}{character vector of gene names}
 
+\item{UMAP1}{COLUMn name containing umap 1 coordinates. character}
+
+\item{UMAP2}{character}
+
 \item{zscore}{Whether expression should be zscore or not}
 
 \item{pointsize}{non-integers work best}
 
 \item{pixels}{resolution for ggscattermore}
+
+\item{alpha}{0-1 controlling transparency, default is 1.}
+
+\item{breaks}{number of breaks on color scale, default is 4}
+
+\item{ncol}{number of columns for plot layout}
+
+\item{nrow}{number of rows for plot layout}
 }
 \value{
 ggplot2

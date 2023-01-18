@@ -18,12 +18,18 @@
 #' @param zscore Whether expression should be zscore or not
 #' @param pointsize non-integers work best
 #' @param pixels resolution for ggscattermore
+#' @param UMAP1 COLUMn name containing umap 1 coordinates. character
+#' @param UMAP2 character
+#' @param alpha 0-1 controlling transparency, default is 1.
+#' @param breaks number of breaks on color scale, default is 4
+#' @param ncol number of columns for plot layout
+#' @param nrow number of rows for plot layout
 #'
 #' @return ggplot2
 #' @export
 #' @import ggplot2
 plot_umap_expr <- function(metadata, cellid_col = 'cellid', expr, genes,
-                          UMAP1 = 'UMAP_1', UMAP2 = 'UMAP_2', zscore = TRUE,
+                          UMAP1 = 'UMAP_1', UMAP2 = 'UMAP_2', zscore = FALSE,
                           pointsize = 1.2,
                           pixels = 712,
                           alpha = 1,
@@ -49,7 +55,7 @@ plot_umap_expr <- function(metadata, cellid_col = 'cellid', expr, genes,
   if (zscore) {
     metadata <- metadata %>%
       dplyr::group_by(gene)  %>%
-      dplyr::mutate(expression_zscore = (expression - mean(expression)) / sd(expression))
+      dplyr::mutate(expression = (expression - mean(expression)) / sd(expression))
 
     label <- glue::glue('Z score')
   }
@@ -62,9 +68,15 @@ plot_umap_expr <- function(metadata, cellid_col = 'cellid', expr, genes,
       .f = ~.x %>% {
         ggplot(.x, aes(x = .data[[UMAP1]], y = .data[[UMAP2]],
                        color = expression)) +
-          scattermore::geom_scattermore(pointsize = pointsize,
-                                        pixels = c(pixels, pixels),
-                                        alpha = alpha) +
+          scattermore::geom_scattermore(
+            data = dplyr::filter(., expression == min(expression)), pointsize = pointsize,
+            pixels = c(pixels, pixels), alpha = alpha, color= 'lightgrey') +
+
+          scattermore::geom_scattermore(
+            data = dplyr::filter(., expression > min(expression)),
+            aes(color = expression),
+            pointsize = pointsize,
+            pixels = c(pixels, pixels), alpha = alpha) +
           theme(strip.placement = 'outside') +
           theme_bw() +
           theme(panel.border = element_blank(),
@@ -73,7 +85,7 @@ plot_umap_expr <- function(metadata, cellid_col = 'cellid', expr, genes,
                 aspect.ratio = 1) +
           scale_color_viridis_c(
             limits = c(
-              # minimum of expression
+             #  minimum of expression
               min(.x$expression),
 
               # if large (>1 unit) difference in max - 99th percentile
