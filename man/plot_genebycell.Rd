@@ -20,7 +20,8 @@ plot_genebycell(
   expand_add = 0.45,
   fontsize_p = 1,
   p_expr_highlight_thresh = 0.05,
-  pexpr_label_size = 2.25
+  pexpr_label_size = 2.25,
+  title = ""
 )
 }
 \arguments{
@@ -60,6 +61,8 @@ highlighted}
 
 \item{pexpr_label_size}{controls size of percent expression labels. Default
 is 2.25}
+
+\item{title}{title of plot}
 }
 \value{
 ggplot2

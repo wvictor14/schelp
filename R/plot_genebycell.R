@@ -25,6 +25,7 @@
 #' highlighted
 #' @param pexpr_label_size controls size of percent expression labels. Default
 #' is 2.25
+#' @param title title of plot
 #'
 #' @return ggplot2
 #' @export
@@ -41,7 +42,8 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
                             expand_add = 0.45,
                             fontsize_p = 1,
                             p_expr_highlight_thresh = 0.05,
-                            pexpr_label_size = 2.25){
+                            pexpr_label_size = 2.25,
+                            title = ''){
   label <- 'ln(TP10K)'
 
   # extract gene expr
@@ -153,6 +155,6 @@ plot_genebycell <- function(metadata, cellid_col = 'cellid', expr, genes,
           axis.ticks = element_blank(),
           strip.background = element_blank(),
           strip.placement = 'outside') +
-    labs(x = label)
+    labs(x = label, y = '', title = title)
   return(plot)
 }
