@@ -32,14 +32,23 @@ library(schelp)
 ## basic example code
 ```
 
-## development
+## development: subset data
+
+The package will load up library(scibd) which is a private package on
+sonoma’s github containing a small subset \~1% of Smillie2019 gut
+scRNAseq data.
+
+This data is loaded into `counts` and `metadata` into the environment
+for immediate testing / development.
+
+## development: full data
 
 metadata_cells and counts_lntp10k.rds exists in data/ for development
 testing
 
-too large to carry with package
+This is the full smillie 2019 data which is
 
-todo: separate into smaller test data
+too large to carry with package
 
 ``` r
 counts <- readRDS(here::here('data', 'counts_lntp10k.rds'))
