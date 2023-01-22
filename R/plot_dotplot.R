@@ -19,17 +19,19 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
                          facet_row = NULL) {
   # extract gene expr
   metadata <- extract_gene(
-    metadata = metadata, expr = expr, cellid_col = cellid_col, genes = genes)
+    metadata = metadata, expr = expr, cellid_col = cellid_col,
+    genes = unlist(genes))
 
   # tidy
   metadata <- metadata %>%
 
     # pivot for plotting
-    tidyr::pivot_longer(cols = tidyselect::any_of(genes),
-                        names_to = 'gene',
-                        values_to = 'expression')
+    tidyr::pivot_longer(
+      cols = tidyselect::any_of(unlist(genes, use.names = FALSE)),
+      names_to = 'gene', values_to = 'expression')
 
   label <- 'Mean\nexpression\nlnTP10K'
+
   # z score across genes
   if (zscore) {
     metadata <- metadata %>%
@@ -39,6 +41,7 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
     label <- 'Mean\nexpression\nZ score'
   }
 
+  # calculate p_expr and mean expr
   metadata <- metadata  %>%
     dplyr::group_by({{facet_row}}, {{celltype_col}}, gene) %>%
 
@@ -46,6 +49,21 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
     dplyr::summarize(p_expr = sum(expression > 0) / dplyr::n(),
                      mean_expr = mean(expression),
                      median_expr = median(expression))
+
+  # add gene categories
+  if (is.list(genes)) {
+    genes <- genes %>%
+      as.data.frame() %>%
+      tidyr::pivot_longer(
+        cols = tidyselect::everything(),
+        names_to = 'gene_group', values_to = 'gene')
+
+    metadata <- metadata %>%
+      dplyr::left_join(genes, by = 'gene')
+    facet_col <- vars(gene_group)
+  } else {
+    facet_col <- vars()
+  }
 
   plot <- metadata %>%
     {
@@ -65,7 +83,10 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
               aspect.ratio =  NULL,
               panel.grid.major = element_blank(),
               panel.spacing = unit(0,'lines'),
-              panel.border = element_rect(color = 'grey', fill = NA)) +
+              panel.border = element_rect(color = 'grey', fill = NA),
+              strip.background = element_blank(),
+              strip.placement = 'outside',
+              strip.text = element_text(size = 10*fontsize_p)) +
         scale_color_viridis_c(option = 'mako', direction = -1,
                               name = label) +
         scale_size_binned(labels = scales::percent,
@@ -74,10 +95,16 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
         ) +
         guides(size = guide_bins(show.limits = TRUE))
     }
-  if (!rlang::quo_is_null(enquo(facet_row))) {
-    plot <- plot +
-      facet_grid(rows = vars({{facet_row}}), scale = 'free', space = 'free')
-  }
 
+  # add facet for cells
+  if (!rlang::quo_is_null(enquo(facet_row))) {
+    facet_row <- vars({{facet_row}})
+  } else {
+    facet_row <- vars()
+  }
+  plot <- plot +
+    facet_grid(
+      rows = facet_row, cols = facet_col,
+      scales = 'free', space = 'free', switch = 'x')
   plot
 }
