@@ -45,7 +45,7 @@ test_that("plot_dotplot works with gene list input + facet_row", {
   metadata <- scibd::metadata
   genelist <- list(
     'Targets' = c('NOX1', 'NXPE1', 'MS4A10'),
-    'Treg' = c('FOXP3')
+    'Gene example' = c('FOXP3', 'FKBP6')
   )
   plot_dotplot(metadata, counts, genes = genelist,
                zscore = FALSE,
