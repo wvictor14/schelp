@@ -4,16 +4,21 @@
 #' @param genes character vector of gene names
 #' @param expr counts matrix
 #' @param celltype_col column in metadata that contains celltype cluster labels
-#' expects a character
 #' @param cellid_col column in metadata that contains cell IDs, matches rownames
-#' of expr
+#' of expr. expects a character
 #' @param facet_row variable to facet rows (cells) by
-#' @param zscore zscores expression by row (gene)
 #' @param fontsize_p a multiplier that controls fontsize.
+#' @param zscore zscores expression by row (gene)
+#' @param zscore_max zscores over this will have same color. Only when zscore =
+#' TRUE.
+#' @param zscore_min zscores below this will be white.
 #'
 #' @return ggplot2
 #' @export
-plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
+plot_dotplot <- function(metadata, expr, genes,
+                         zscore = TRUE,
+                         zscore_max = 3,
+                         zscore_min = 0,
                          celltype_col,
                          cellid_col = 'cellid',
                          fontsize_p = 1,
@@ -31,15 +36,16 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
       cols = tidyselect::any_of(unlist(genes, use.names = FALSE)),
       names_to = 'gene', values_to = 'expression')
 
-  label <- 'Mean\nexpression\nlnTP10K'
-
   # z score across genes
   if (zscore) {
     metadata <- metadata %>%
       dplyr::group_by(gene)  %>%
-      dplyr::mutate(expression =
-                      (expression - mean(expression)) / sd(expression))
+      dplyr::mutate(expression = scale(expression))
     label <- 'Mean\nexpression\nZ score'
+    limits <- c(zscore_min, zscore_max)
+  } else {
+    label <- 'Mean\nexpression\nlnTP10K'
+    limits <- NULL
   }
 
   # calculate p_expr and mean expr
@@ -85,7 +91,8 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
               strip.placement = 'outside',
               strip.text = element_text(size = 10*fontsize_p)) +
         scale_color_viridis_c(option = 'mako', direction = -1,
-                              name = label) +
+                              name = label, limits = limits,
+                              oob = scales::squish) +
         scale_size_binned(labels = scales::percent,
                           name = '% cells\nexpressing',
                           range = c(0.1, 3.5)

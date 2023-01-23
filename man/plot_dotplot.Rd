@@ -9,6 +9,8 @@ plot_dotplot(
   expr,
   genes,
   zscore = TRUE,
+  zscore_max = 3,
+  zscore_min = 0,
   celltype_col,
   cellid_col = "cellid",
   fontsize_p = 1,
@@ -24,11 +26,15 @@ plot_dotplot(
 
 \item{zscore}{zscores expression by row (gene)}
 
-\item{celltype_col}{column in metadata that contains celltype cluster labels
-expects a character}
+\item{zscore_max}{zscores over this will have same color. Only when zscore =
+TRUE.}
+
+\item{zscore_min}{zscores below this will be white.}
+
+\item{celltype_col}{column in metadata that contains celltype cluster labels}
 
 \item{cellid_col}{column in metadata that contains cell IDs, matches rownames
-of expr}
+of expr. expects a character}
 
 \item{fontsize_p}{a multiplier that controls fontsize.}
 
