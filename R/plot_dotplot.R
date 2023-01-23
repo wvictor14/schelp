@@ -4,6 +4,7 @@
 #' @param genes character vector of gene names
 #' @param expr counts matrix
 #' @param celltype_col column in metadata that contains celltype cluster labels
+#' expects a character
 #' @param cellid_col column in metadata that contains cell IDs, matches rownames
 #' of expr
 #' @param facet_row variable to facet rows (cells) by
@@ -52,11 +53,7 @@ plot_dotplot <- function(metadata, expr, genes, zscore = TRUE,
 
   # add gene categories
   if (is.list(genes)) {
-    genes <- genes %>%
-      as.data.frame() %>%
-      tidyr::pivot_longer(
-        cols = tidyselect::everything(),
-        names_to = 'gene_group', values_to = 'gene')
+    genes <- genes %>% stack() %>%dplyr::rename(gene = values, gene_group = ind)
 
     metadata <- metadata %>%
       dplyr::left_join(genes, by = 'gene')

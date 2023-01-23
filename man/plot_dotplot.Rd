@@ -24,7 +24,8 @@ plot_dotplot(
 
 \item{zscore}{zscores expression by row (gene)}
 
-\item{celltype_col}{column in metadata that contains celltype cluster labels}
+\item{celltype_col}{column in metadata that contains celltype cluster labels
+expects a character}
 
 \item{cellid_col}{column in metadata that contains cell IDs, matches rownames
 of expr}
