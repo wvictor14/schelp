@@ -90,6 +90,6 @@ metadata <- metadata %>%
 counts <- rbind(
   counts[c('FOXP3', 'NOX1', 'NXPE1', 'MS4A10'), metadata$cellid],
   counts[sample(1:nrow(counts), 26), metadata$cellid]
-)
+) %>% as.matrix
 
 usethis::use_data(metadata, counts, overwrite = TRUE)
