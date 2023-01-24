@@ -1,12 +1,12 @@
 test_that("extract_gene works on 1 gene", {
   metadata <- extract_gene(
-    scibd::metadata, expr = scibd::counts, genes = 'FOXP3')
+    metadata, expr = counts, genes = 'FOXP3')
   expect_vector(metadata$FOXP3)
 })
 
 test_that("extract_gene works on 5 genes", {
   metadata <- extract_gene(
-    scibd::metadata, expr = scibd::counts,
+    metadata, expr = counts,
     genes = c('FOXP3', 'NOX1', 'NXPE1', 'MS4A10', 'CCDC62', 'FKBP6'))
   expect_vector(metadata$FOXP3)
 })
