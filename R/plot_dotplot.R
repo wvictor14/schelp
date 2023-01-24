@@ -117,6 +117,7 @@ plot_dotplot <- function(metadata, expr, genes,
 #' @describeIn plot_dotplot puts sample groups on the x-axis and column facets
 #' by gene
 #' @param groups column of metadata to plot on x-axis (e.g. disease)
+#' @export
 plot_dotplot_groups <- function(metadata, expr, genes,
                          zscore = TRUE,
                          zscore_max = 3,
