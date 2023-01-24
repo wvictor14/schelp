@@ -4,24 +4,20 @@
 \alias{extract_gene}
 \title{extracts gene expression data into metadata}
 \usage{
-extract_gene(metadata, cellid_col = "cellid", expr, genes)
+extract_gene(metadata, expr, genes, cellid_col = "cellid")
 }
 \arguments{
 \item{metadata}{cell metadata}
 
-\item{cellid_col}{column in metadata containing cell identifiers, should
-match rownames(counts). Default is "cellid"}
-
 \item{expr}{count matrix, cells in columns, genes in rows}
 
 \item{genes}{character vector of gene names}
+
+\item{cellid_col}{column in metadata that corresponds to rownames of expr}
 }
 \value{
 tibble
 }
 \description{
-First checks if gene names are in counts rownames
-If genes already exist in metadata, message that they are being overwritten
-rownames of counts will be joined on a cell identifier column in metadata
-using left_join
+extracts gene expression data into metadata
 }

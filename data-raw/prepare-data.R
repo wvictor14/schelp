@@ -45,3 +45,51 @@ genelists <- list(
 map(genelists, length)
 
 usethis::use_data(genelists, overwrite = TRUE)
+
+
+#############################################################################
+### smillie 2019 counts and metadata
+########## .rds data objects were copied from "output" folder
+
+library(dplyr)
+library(here)
+library(forcats)
+library(readr)
+library(purrr)
+
+# clean up metadata
+metadata <- read_csv(here::here('data-raw', 'Cells metadata.csv')) %>%
+
+  # recode and relevel health_group
+  mutate(Health_group_pretty = case_when(
+    Health_group == 'Healthy' ~ 'Healthy',
+    Health_group == 'Non-inflamed' ~ 'UC Non-Infl.',
+    Health_group == 'Inflamed' ~ 'UC Infl.'
+  ) %>% fct(levels = c('Healthy', 'UC Non-Infl.', 'UC Infl.'))) %>%
+
+  # get cell numbers
+  group_by(ori.Cluster_group) %>%
+  mutate(ori_cluster_id_ncell = paste0(ori.Cluster_group, ' (', n(), ')'))%>%
+  ungroup()
+
+# extract gene names
+counts <- readRDS(here::here('data-raw', 'Count matrix - log TP10k.rds'))
+
+# filer to quality cells
+metadata <- metadata %>%
+  filter(qc_status == 'Passed', scrublet_call %in% c('Singlet', 'Not evaluated'))
+counts <- counts[,metadata$cellid]
+
+# Save example data
+set.seed(1)
+metadata <- metadata %>%
+  filter(Compartment %in% c('Epithelial', 'Immune')) %>%
+  group_by(Compartment, Health_group, ori.Cluster_group) %>%
+  dplyr::slice_sample(prop = 0.01) %>% ungroup()
+
+counts <- rbind(
+  counts[c('FOXP3', 'NOX1', 'NXPE1', 'MS4A10'), metadata$cellid],
+  counts[sample(1:nrow(counts), 26), metadata$cellid]
+) %>% as.matrix
+
+usethis::use_data(metadata, counts, overwrite = TRUE)

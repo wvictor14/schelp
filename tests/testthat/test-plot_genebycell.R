@@ -1,6 +1,4 @@
 test_that("plot_genebycell works with 1 gene", {
-  counts <- scibd::counts
-  metadata <- scibd::metadata
 
   plot_genebycell(metadata = metadata, genes = 'FOXP3', expr = counts,
                     celltype_col = ori.Cluster_group)
@@ -12,9 +10,6 @@ test_that("plot_genebycell works with 1 gene", {
 })
 
 test_that("plot_genebycell works with 2 genes", {
-  counts <- scibd::counts
-  metadata <- scibd::metadata
-
   genes <- c('FOXP3', 'NOX1')
   plot_genebycell(metadata = metadata, genes = genes, expr = counts,
                     celltype_col = ori.Cluster_group)
