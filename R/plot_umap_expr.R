@@ -45,8 +45,7 @@ plot_umap_expr <- function(metadata, cellid_col = 'cellid', expr, genes,
 
   # tidy format
   metadata <- metadata %>%
-    dplyr::select(cellid, .data[[UMAP1]], .data[[UMAP2]],
-                  tidyselect::any_of(genes)) %>%
+    dplyr::select(cellid, tidyselect::any_of(c(UMAP1, UMAP2, genes))) %>%
     tidyr::pivot_longer(cols = tidyselect::any_of(genes),
                         names_to = 'gene',
                         values_to = 'expression')
