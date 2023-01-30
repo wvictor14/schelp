@@ -1,3 +1,4 @@
+# plot_dotplot ----
 test_that("plot_dotplot works with character vector gene input", {
   plot_dotplot(metadata, counts, 'FOXP3', celltype_col = ori.Cluster_group)
   plot_dotplot(metadata, counts, rownames(counts)[1:20],
@@ -57,6 +58,7 @@ test_that("plot_dotplot max zscore", {
   expect_true(TRUE)
 })
 
+# plot_dotplot_groups ----
 test_that("plot_dotplot_groups works with named list input", {
   genelist <- list(
     'Targets' = c('NOX1', 'NXPE1', 'MS4A10'),
