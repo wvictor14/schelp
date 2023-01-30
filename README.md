@@ -11,7 +11,9 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/schelp)](https://CRAN.R-project.org/package=schelp)
 <!-- badges: end -->
 
-The goal of schelp is to …
+I created schelp to capture common processes and tools for single cell
+RNAseq analysis. These include QC, data processing, summarization and
+visualization.
 
 ## Installation
 
