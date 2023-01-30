@@ -1,6 +1,6 @@
 Package: schelp
 Title: Data processing and analysis tools for scRNAseq data
-Version: 0.0.2
+Version: 0.1.0
 Authors@R: 
     person("Victor", "Yuan", , "victor.2wy@gmail.com", role = c("aut", "cre"))
 Description: A collection of helper functions that I use for my scRNAseq
