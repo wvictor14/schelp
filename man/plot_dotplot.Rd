@@ -2,6 +2,7 @@
 % Please edit documentation in R/plot_dotplot.R
 \name{plot_dotplot}
 \alias{plot_dotplot}
+\alias{plot_dotplot_groups}
 \title{plots a heatmap / dotplot}
 \usage{
 plot_dotplot(
@@ -15,6 +16,20 @@ plot_dotplot(
   cellid_col = "cellid",
   fontsize_p = 1,
   facet_row = NULL
+)
+
+plot_dotplot_groups(
+  metadata,
+  expr,
+  genes,
+  zscore = TRUE,
+  zscore_max = 3,
+  zscore_min = 0,
+  celltype_col,
+  cellid_col = "cellid",
+  fontsize_p = 1,
+  facet_row = NULL,
+  groups
 )
 }
 \arguments{
@@ -39,6 +54,8 @@ of expr. expects a character}
 \item{fontsize_p}{a multiplier that controls fontsize.}
 
 \item{facet_row}{variable to facet rows (cells) by}
+
+\item{groups}{column of metadata to plot on x-axis (e.g. disease)}
 }
 \value{
 ggplot2
@@ -46,3 +63,9 @@ ggplot2
 \description{
 plots a heatmap / dotplot
 }
+\section{Functions}{
+\itemize{
+\item \code{plot_dotplot_groups()}: puts sample groups on the x-axis and column facets
+by gene
+
+}}
